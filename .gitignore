@@ -1,0 +1,33 @@
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+backend/.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Frontend
+node_modules/
+dist/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Preserved nested repository metadata
+frontend/.git-frontend-backup/
+
+# Preserved nested repository metadata
+frontend/git-metadata-backup/

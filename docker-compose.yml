@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgis/postgis:15-3.4
+    container_name: weathergpt_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: weathergpt
+      POSTGRES_USER: weathergpt
+      POSTGRES_PASSWORD: weathergpt
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U weathergpt -d weathergpt"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: weathergpt_backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://weathergpt:weathergpt@postgres:5432/weathergpt
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.0-flash}
+      WEATHER_PROVIDER: open_meteo
+      DEBUG: "false"
+      CORS_ORIGINS: '["http://localhost:5173","http://localhost:3000","http://frontend:3000"]'
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    working_dir: /app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: weathergpt_frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    working_dir: /app
+    command: npm run dev -- --host
+
+volumes:
+  postgres_data:
