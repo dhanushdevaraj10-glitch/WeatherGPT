@@ -22,6 +22,7 @@ dist/
 
 # IDE and OS files
 .vscode/
+.vercel/
 .idea/
 .DS_Store
 Thumbs.db
