@@ -98,6 +98,37 @@ The repository includes `render.yaml` for a Render Blueprint deployment.
 4. After the services are created, set the frontend `VITE_API_URL` to the backend URL followed by `/api`.
 5. Set the backend `CORS_ORIGINS` to a JSON array containing the frontend URL, then redeploy both services.
 
+### Deploy with Vercel + Railway
+
+Use Railway for the backend and PostgreSQL, and Vercel for the frontend.
+
+#### Railway backend
+
+1. Create a Railway project from this GitHub repository.
+2. Add a PostgreSQL service.
+3. Add a backend service using the repository with root directory `backend`.
+4. Add `DATABASE_URL` using the Railway PostgreSQL `DATABASE_URL` reference.
+5. Add `GEMINI_API_KEY`, `GEMINI_MODEL=gemini-2.0-flash`, `WEATHER_PROVIDER=open_meteo`, and `DEBUG=false`.
+6. Generate a public domain for the backend service.
+
+#### Vercel frontend
+
+1. Import this GitHub repository into Vercel.
+2. Set the project root directory to `frontend`.
+3. Use build command `npm run build` and output directory `dist`.
+4. Add `VITE_API_URL=https://YOUR-RAILWAY-BACKEND.up.railway.app/api`.
+5. Deploy, then copy the Vercel URL.
+
+#### CORS
+
+Set this Railway backend variable to the Vercel URL:
+
+```text
+CORS_ORIGINS=["https://YOUR-PROJECT.vercel.app"]
+```
+
+Redeploy the Railway backend after changing `CORS_ORIGINS`.
+
 ---
 
 ## 🔑 Environment Variables
