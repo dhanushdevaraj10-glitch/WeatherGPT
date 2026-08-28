@@ -12,6 +12,7 @@ export const LocationSearch: React.FC<LocationSearchProps> = ({ onSelect, classN
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Location[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -32,15 +33,21 @@ export const LocationSearch: React.FC<LocationSearchProps> = ({ onSelect, classN
         return;
       }
       setLoading(true);
+      setError(null);
       try {
         const res = await weatherApi.searchLocation(query);
-          if (Array.isArray(res.data)) {
-            setResults(res.data);
+        const data = res.data as Location[] | { results?: Location[] };
+        if (Array.isArray(data)) {
+          setResults(data);
+        } else if (Array.isArray(data.results)) {
+          setResults(data.results);
         } else {
            setResults([]);
         }
       } catch (err) {
-        console.error(err);
+        console.error('Location search failed:', err);
+        setResults([]);
+        setError('Location search is temporarily unavailable.');
       } finally {
         setLoading(false);
       }
@@ -90,6 +97,8 @@ export const LocationSearch: React.FC<LocationSearchProps> = ({ onSelect, classN
                 </li>
               ))}
             </ul>
+          ) : !loading && error ? (
+            <div className="px-4 py-3 text-sm text-red-300 text-center">{error}</div>
           ) : !loading && (
             <div className="px-4 py-3 text-sm text-slate-400 text-center">No results found</div>
           )}
