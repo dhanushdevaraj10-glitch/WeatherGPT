@@ -85,9 +85,6 @@ npm install
 npm run dev
 ```
 
-Frontend: http://localhost:5173
-Backend API: http://localhost:8000/docs
-
 ### Deploy on Render
 
 The repository includes `render.yaml` for a Render Blueprint deployment.
