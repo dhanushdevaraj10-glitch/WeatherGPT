@@ -1,4 +1,4 @@
-# WeatherGPT 🌐⚡
+# WeatherGPT 🌐
 
 ### *Real Weather Data. Intelligent Risk. Smarter Decisions.*
 
