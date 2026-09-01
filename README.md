@@ -1,9 +1,10 @@
-# WeatherGPT 🌐⚡
+# WeatherGPT 🌐
 
 ### *Real Weather Data. Intelligent Risk. Smarter Decisions.*
 
 A full-stack AI-powered global weather intelligence platform combining real meteorological data, multi-model forecast analysis, geospatial intelligence, risk assessment, conversational AI, and climate analytics.
 
+🔗link - https://frontend-zeta-beige-19.vercel.app 
 ---
 
 ## ✨ Features
@@ -84,9 +85,6 @@ npm install
 # Start development server
 npm run dev
 ```
-
-Frontend: http://localhost:5173
-Backend API: http://localhost:8000/docs
 
 ### Deploy on Render
 
