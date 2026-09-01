@@ -42,6 +42,7 @@ export const Dashboard: React.FC = () => {
         <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight mb-4">
           WeatherGPT
         </h1>
+        <p className="text-sm text-gray-400 mb-6">v2.0 - Black Background Edition</p>
         
         <div className="w-full max-w-lg mb-12 relative z-20">
           <LocationSearch onSelect={handleLocationSelect} className="w-full" />
