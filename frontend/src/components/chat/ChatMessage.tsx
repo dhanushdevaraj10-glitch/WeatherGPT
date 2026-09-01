@@ -34,8 +34,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
               </React.Fragment>
             ))}
             
-            {/* Embedded specific UI based on intent (simplified for hackathon) */}
-            {message.weather_data && (
+            {/* Keep the compact weather card for a direct current-conditions answer only. */}
+            {message.weather_data && message.intent === 'CURRENT_WEATHER' && (
               <div className="mt-4 p-3 rounded-xl bg-black/30 border border-white/5 flex items-center gap-4">
                 <div className="text-3xl font-bold">{Math.round(message.weather_data.temperature)}°</div>
                 <div>
@@ -46,14 +46,6 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             )}
           </div>
           
-          {/* Metadata */}
-          <div className="flex items-center gap-3 mt-1.5 px-2">
-            {!isUser && message.intent && (
-              <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider bg-white/5 px-2 py-0.5 rounded">
-                Intent: {message.intent}
-              </span>
-            )}
-          </div>
         </div>
       </div>
     </div>

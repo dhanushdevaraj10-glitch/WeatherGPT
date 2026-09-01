@@ -9,10 +9,10 @@ services:
         fromDatabase:
           name: weathergpt-db
           property: connectionString
-      - key: GEMINI_API_KEY
+      - key: OPENAI_API_KEY
         sync: false
-      - key: GEMINI_MODEL
-        value: gemini-2.0-flash
+      - key: OPENAI_MODEL
+        value: gpt-5.2
       - key: WEATHER_PROVIDER
         value: open_meteo
       - key: DEBUG

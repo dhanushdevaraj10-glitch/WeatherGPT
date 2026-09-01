@@ -11,7 +11,7 @@ export default {
       },
       colors: {
         dark: {
-          bg: '#0a0e1a',
+          bg: '#000000',
           card: '#111827',
         },
         accent: {

@@ -38,7 +38,8 @@ export const ChatInterface: React.FC = () => {
         message: text,
         session_id: state.sessionId,
         location: state.selectedLocation,
-        user_profile: state.userProfile
+        user_profile: state.userProfile,
+        history: state.chatMessages.map(({ role, content }) => ({ role, content }))
       });
       
       const astMsg = {

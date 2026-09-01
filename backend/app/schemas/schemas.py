@@ -94,6 +94,7 @@ class ChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
     location: Optional[Dict[str, Any]] = None
+    history: List[Dict[str, str]] = Field(default_factory=list)
     mode: str = "live"
 
 class ChatResponse(BaseModel):
