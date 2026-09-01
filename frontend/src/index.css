@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  @apply bg-dark-bg text-slate-100 font-sans;
+  @apply bg-black text-white font-sans;
   overflow-x: hidden;
 }
 
