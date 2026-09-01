@@ -15,6 +15,8 @@ import { ModelAgreementCard } from '../components/shared/ModelAgreementCard';
 import { AIRiskBadge } from '../components/risk/AIRiskBadge';
 import { OfficialWarningCard } from '../components/shared/OfficialWarningCard';
 
+// v2.0 - Black background, white text, no tagline
+
 export const Dashboard: React.FC = () => {
   const { state, dispatch } = useAppContext();
   const { fetchWeather, isLoading, error } = useWeather();
