@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CloudLightning, Search, ArrowRight, ShieldCheck, Database, BrainCircuit, Globe } from 'lucide-react';
+import { CloudLightning, ArrowRight, ShieldCheck, Database, BrainCircuit, Globe, Navigation, Loader2, MapPin } from 'lucide-react';
 import { useAppContext } from '../store/appStore';
 import { useWeather } from '../hooks/useWeather';
+import { useGeolocation } from '../hooks/useGeolocation';
 import { LocationSearch } from '../components/shared/LocationSearch';
 import { LoadingSpinner } from '../components/shared/LoadingSpinner';
 import { CurrentWeatherCard } from '../components/weather/CurrentWeatherCard';
@@ -15,11 +16,10 @@ import { ModelAgreementCard } from '../components/shared/ModelAgreementCard';
 import { AIRiskBadge } from '../components/risk/AIRiskBadge';
 import { OfficialWarningCard } from '../components/shared/OfficialWarningCard';
 
-// v2.0 - Black background, white text, no tagline
-
 export const Dashboard: React.FC = () => {
   const { state, dispatch } = useAppContext();
   const { fetchWeather, isLoading, error } = useWeather();
+  const { getLocation, loading: isLocating } = useGeolocation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,22 +32,77 @@ export const Dashboard: React.FC = () => {
     dispatch({ type: 'SET_LOCATION', payload: loc });
   };
 
+  const handleDetectLocation = () => {
+    getLocation((loc) => {
+      dispatch({ type: 'SET_LOCATION', payload: loc });
+    });
+  };
+
+  const POPULAR_LOCATIONS = [
+    { name: 'Coimbatore', region: 'Tamil Nadu', country: 'India', latitude: 11.0168, longitude: 76.9558, timezone: 'Asia/Kolkata', elevation: 411 },
+    { name: 'London', region: 'England', country: 'United Kingdom', latitude: 51.5074, longitude: -0.1278, timezone: 'Europe/London', elevation: 25 },
+    { name: 'Tokyo', region: 'Tokyo', country: 'Japan', latitude: 35.6762, longitude: 139.6503, timezone: 'Asia/Tokyo', elevation: 40 },
+    { name: 'New York', region: 'New York', country: 'United States', latitude: 40.7128, longitude: -74.0060, timezone: 'America/New_York', elevation: 10 },
+    { name: 'Paris', region: 'Île-de-France', country: 'France', latitude: 48.8566, longitude: 2.3522, timezone: 'Europe/Paris', elevation: 35 },
+  ];
+
   if (!state.selectedLocation) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] p-4 text-center">
-        <div className="w-20 h-20 bg-gradient-to-br from-accent-primary to-accent-secondary rounded-2xl flex items-center justify-center mb-8 shadow-[0_0_40px_rgba(59,130,246,0.3)] animate-pulse-glow">
+        <div className="w-20 h-20 bg-gradient-to-br from-accent-primary to-accent-secondary rounded-2xl flex items-center justify-center mb-6 shadow-[0_0_40px_rgba(59,130,246,0.3)] animate-pulse-glow">
           <CloudLightning className="text-white" size={40} />
         </div>
         
-        <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight mb-4">
+        <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight mb-2">
           WeatherGPT
         </h1>
+        <p className="text-slate-400 text-sm max-w-md mb-8">
+          Real Meteorological Data • AI Risk Intelligence • Global Hyperlocal Forecasts
+        </p>
         
-        <div className="w-full max-w-lg mb-12 relative z-20">
-          <LocationSearch onSelect={handleLocationSelect} className="w-full" />
+        <div className="w-full max-w-lg mb-4 relative z-20">
+          <LocationSearch 
+            onSelect={handleLocationSelect} 
+            className="w-full" 
+            onUseLocation={handleDetectLocation}
+            isLocating={isLocating}
+          />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-6xl mt-8">
+        {/* Prominent Detect Location Button */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+          <button
+            onClick={handleDetectLocation}
+            disabled={isLocating}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent-primary/20 hover:bg-accent-primary/30 border border-accent-primary/40 text-accent-secondary text-sm font-semibold transition-all shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:scale-105 active:scale-95"
+          >
+            {isLocating ? (
+              <Loader2 className="animate-spin text-accent-primary" size={18} />
+            ) : (
+              <Navigation className="text-accent-primary" size={18} />
+            )}
+            <span>{isLocating ? 'Detecting Location...' : 'Use My Current Location'}</span>
+          </button>
+        </div>
+
+        {/* Quick Location Chips */}
+        <div className="w-full max-w-xl mb-12">
+          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Quick Locations</div>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {POPULAR_LOCATIONS.map((loc) => (
+              <button
+                key={loc.name}
+                onClick={() => handleLocationSelect(loc)}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-slate-300 hover:text-white transition-all hover:border-white/20"
+              >
+                <MapPin size={13} className="text-accent-secondary" />
+                <span>{loc.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-6xl mt-4">
           <div className="glass-card p-6 text-left">
             <Database className="text-accent-primary mb-4" size={24} />
             <h3 className="text-lg font-bold text-white mb-2">Real Data</h3>
@@ -82,6 +137,12 @@ export const Dashboard: React.FC = () => {
       <div className="p-8 text-center text-red-400">
         <p className="text-xl font-bold">Error loading weather data</p>
         <p>{error}</p>
+        <button 
+          onClick={() => state.selectedLocation && fetchWeather(state.selectedLocation.latitude, state.selectedLocation.longitude, state.selectedLocation)}
+          className="mt-4 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-white text-sm"
+        >
+          Try Again
+        </button>
       </div>
     );
   }
@@ -101,7 +162,7 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Warnings Row */}
-      <OfficialWarningCard warnings={[]} /> {/* Empty for hackathon default, can add mock data */}
+      <OfficialWarningCard warnings={[]} />
 
       {/* Forecast Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -134,11 +195,14 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
         
-        <div className="h-[400px]">
+        <div className="h-[420px]">
           <WeatherMap 
             center={[state.selectedLocation.latitude, state.selectedLocation.longitude]} 
             location={state.selectedLocation}
             temperature={state.currentWeather.temperature}
+            onMapClick={(lat, lon) => {
+              navigate('/map');
+            }}
           />
         </div>
       </div>

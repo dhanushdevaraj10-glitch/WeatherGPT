@@ -1,14 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { CloudLightning, Home, MessageSquare, Map as MapIcon, BarChart3, AlertCircle, User, Settings } from 'lucide-react';
+import { CloudLightning, Navigation, Settings, Loader2 } from 'lucide-react';
 import { useAppContext } from '../../store/appStore';
 import { LocationSearch } from '../shared/LocationSearch';
 import { useGeolocation } from '../../hooks/useGeolocation';
-import { weatherApi } from '../../api/weather';
 
 export const Navbar: React.FC = () => {
   const { state, dispatch } = useAppContext();
-  const { getLocation, location, loading, error } = useGeolocation();
+  const { getLocation, loading, error } = useGeolocation();
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   const handleLocationSelect = (loc: any) => {
     dispatch({ type: 'SET_LOCATION', payload: loc });
@@ -19,28 +19,24 @@ export const Navbar: React.FC = () => {
   };
 
   const handleGPS = () => {
-    getLocation();
+    getLocation((loc) => {
+      dispatch({ type: 'SET_LOCATION', payload: loc });
+      setToastMsg(`Location set to ${loc.name}`);
+      setTimeout(() => setToastMsg(null), 3000);
+    });
   };
-
-  React.useEffect(() => {
-    if (location) {
-      weatherApi.reverseGeocode(location.latitude, location.longitude)
-        .then((res) => {
-          if (res.data) {
-            dispatch({ type: 'SET_LOCATION', payload: res.data });
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    }
-  }, [location, dispatch]);
 
   return (
     <nav className="sticky top-0 z-40 w-full bg-dark-bg/80 backdrop-blur-lg border-b border-white/5">
       {state.mode === 'demo' && (
         <div className="bg-red-500/90 text-white text-xs font-bold text-center py-1 tracking-widest uppercase">
           ⚠ HACKATHON SIMULATION MODE ACTIVE — NOT REAL WEATHER DATA ⚠
+        </div>
+      )}
+
+      {toastMsg && (
+        <div className="bg-accent-primary/90 text-white text-xs font-medium text-center py-1 animate-fade-in">
+          ✓ {toastMsg}
         </div>
       )}
       
@@ -58,30 +54,48 @@ export const Navbar: React.FC = () => {
             </NavLink>
           </div>
 
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
-            <LocationSearch onSelect={handleLocationSelect} className="w-full" />
+          <div className="hidden md:flex flex-1 max-w-md mx-8 items-center">
+            <LocationSearch onSelect={handleLocationSelect} className="w-full" onUseLocation={handleGPS} isLocating={loading} />
             <button 
               onClick={handleGPS}
               disabled={loading}
-              className="ml-2 p-2 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-              title="Use current location"
+              className={`ml-2 p-2 rounded-xl border border-white/10 hover:border-accent-primary/50 transition-all ${
+                loading 
+                  ? 'bg-accent-primary/20 text-accent-primary' 
+                  : 'bg-white/5 text-slate-300 hover:text-white hover:bg-white/10'
+              }`}
+              title="Detect my current location"
             >
-              <MapIcon size={20} />
+              {loading ? (
+                <Loader2 className="animate-spin text-accent-primary" size={18} />
+              ) : (
+                <Navigation size={18} className="text-accent-secondary" />
+              )}
             </button>
-            {error && <span className="sr-only" role="alert">{error}</span>}
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            {/* Mobile GPS quick button */}
+            <button 
+              onClick={handleGPS}
+              disabled={loading}
+              className="md:hidden p-2 rounded-xl bg-white/5 border border-white/10 text-accent-secondary hover:bg-white/10"
+              title="Detect my current location"
+            >
+              {loading ? <Loader2 className="animate-spin text-accent-primary" size={16} /> : <Navigation size={16} />}
+            </button>
+
             <button
               onClick={toggleMode}
-              className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
                 state.mode === 'live' 
                   ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10' 
                   : 'border-amber-500/50 text-amber-400 bg-amber-500/20 animate-pulse-glow'
               }`}
             >
               <span className={`w-2 h-2 rounded-full ${state.mode === 'live' ? 'bg-emerald-400' : 'bg-amber-400'}`}></span>
-              {state.mode === 'live' ? 'LIVE MODE' : 'DEMO MODE'}
+              <span className="hidden sm:inline">{state.mode === 'live' ? 'LIVE MODE' : 'DEMO MODE'}</span>
+              <span className="sm:hidden">{state.mode === 'live' ? 'LIVE' : 'DEMO'}</span>
             </button>
             
             <NavLink to="/settings" className="p-2 text-slate-400 hover:text-white transition-colors">
@@ -90,6 +104,11 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
+      {error && (
+        <div className="bg-red-500/20 text-red-300 text-xs text-center py-0.5 border-t border-red-500/30">
+          Location: {error}
+        </div>
+      )}
     </nav>
   );
-}
+};
